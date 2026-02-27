@@ -1,17 +1,16 @@
 // ==UserScript==
 // @name         Translate webpage
 // @namespace    https://github.com/Procyon-b
-// @version      0.5.1
+// @version      0.6.1-webdevsk
 // @description  Mimicks chrome's built-in page translator. Can be used as a userscript (from the context menu or always on) or as a bookmarklet (clicking the bookmark translates the page). For Firefox and chrome
 // @author       Achernar
 // @match        *://*/*
-// @run-at       context-menu
 // @run-at       document-idle
 // @grant   GM_setValue
 // @grant   GM_getValue
 // @grant   GM_deleteValue
-// @downloadURL https://update.greasyfork.org/scripts/470861/Translate%20webpage.user.js
-// @updateURL https://update.greasyfork.org/scripts/470861/Translate%20webpage.meta.js
+// @grant   GM_registerMenuCommand
+// @grant   GM_unregisterMenuCommand
 // ==/UserScript==
 
 javascript:
@@ -628,18 +627,22 @@ Clique para traduzir`},
 單擊以翻譯`}
     }
 
-
     if (trans || getCookies().googtrans || !GM || (gmi && (gmi == 'context-menu')) && (gmi && !gmi.startsWith('document-'))) startGT()
     else {
+        function triggerGT() {
+            gte.innerHTML = ''
+            gte.title = ''
+            gte.classList.remove('T')
+            startGT()
+        }
+        if (typeof GM_registerMenuCommand !== 'undefined') GM_registerMenuCommand("Translate Page", () => {
+            triggerGT()
+            GM_unregisterMenuCommand("Translate Page")
+        })
         gte.innerHTML = '&#167;'
         gte.title = locS('float_tit')
         gte.classList.add('T')
-        gte.addEventListener('click', function () {
-            this.innerHTML = ''
-            this.title = ''
-            this.classList.remove('T')
-            startGT()
-        }, { once: true })
+        gte.addEventListener('click', triggerGT, { once: true })
     }
 
 })()
